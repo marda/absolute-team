@@ -23,10 +23,13 @@ class TeamCRUDManager extends BaseCRUDManager
 
     public function create($name, $image)
     {
-        if ($image instanceof \Nette\Http\FileUpload && $image->getName()) {
+        if ($image instanceof \Nette\Http\FileUpload && $image->getName())
+        {
             $fileId = $this->fileCRUDManager->createFromUpload($image, $image->getSanitizedName(), "/images/teams/");
             $fileId = (!$fileId) ? null : $fileId;
-        } else {
+        }
+        else
+        {
             $fileId = null;
         }
         $result = $this->database->table('team')->insert(array(
@@ -40,10 +43,12 @@ class TeamCRUDManager extends BaseCRUDManager
     public function delete($id)
     {
         $db = $this->database->table('team')->get($id);
-        if (!$db) {
+        if (!$db)
+        {
             return false;
         }
-        if ($db->file_id) {
+        if ($db->file_id)
+        {
             $this->fileCRUDManager->delete($db->file_id);
         }
         $this->database->table('event_team')->where('team_id', $id)->delete();
@@ -59,21 +64,26 @@ class TeamCRUDManager extends BaseCRUDManager
     public function update($id, $name, $image)
     {
         $db = $this->database->table('team')->get($id);
-        if (!$db) {
+        if (!$db)
+        {
             return false;
         }
-        if ($image instanceof \Nette\Http\FileUpload && $image->getName()) {
+        if ($image instanceof \Nette\Http\FileUpload && $image->getName())
+        {
             $fileId = $this->fileCRUDManager->createFromUpload($image, $image->getSanitizedName(), "/images/teams/");
             $fileId = (!$fileId) ? null : $fileId;
-            if ($db->file_id) {
+            if ($db->file_id)
+            {
                 $this->fileCRUDManager->delete($db->file_id);
             }
-        } else {
+        }
+        else
+        {
             $fileId = $db->file_id;
         }
         return $this->database->table('team')->where('id', $id)->update(array(
-                'name' => $name,
-                'file_id' => $fileId,
+                    'name' => $name,
+                    'file_id' => $fileId,
         ));
     }
 

@@ -10,7 +10,7 @@ use Absolute\Module\File\Manager\FileManager;
 class TeamManager extends BaseManager
 {
 
-    public function __construct(  Context $database, FileManager $fileManager)
+    public function __construct(Context $database, FileManager $fileManager)
     {
         parent::__construct($database);
         $this->fileManager = $fileManager;
@@ -20,11 +20,13 @@ class TeamManager extends BaseManager
 
     public function _getTeam($db)
     {
-        if ($db == false) {
+        if ($db == false)
+        {
             return false;
         }
         $object = new Team($db->id, $db->name, $db->created);
-        if ($db->ref('file')) {
+        if ($db->ref('file'))
+        {
             $object->setImage($this->fileManager->_getFile($db->ref('file')));
         }
         return $object;
@@ -42,7 +44,8 @@ class TeamManager extends BaseManager
     {
         $ret = array();
         $resultDb = $this->database->table('team');
-        foreach ($resultDb as $db) {
+        foreach ($resultDb as $db)
+        {
             $object = $this->_getTeam($db);
             $ret[] = $object;
         }
@@ -53,11 +56,14 @@ class TeamManager extends BaseManager
     {
         $ret = array();
         $resultDb = $this->database->table('team');
-        foreach ($resultDb as $db) {
+        foreach ($resultDb as $db)
+        {
             $object = $this->_getTeam($db);
-            foreach ($db->related('team_user') as $userDb) {
+            foreach ($db->related('team_user') as $userDb)
+            {
                 $user = $this->_getUser($userDb->user);
-                if ($user) {
+                if ($user)
+                {
                     $object->addUser($user);
                 }
             }
@@ -70,11 +76,39 @@ class TeamManager extends BaseManager
     {
         $ret = array();
         $resultDb = $this->database->table('team')->where('name REGEXP ?', $search);
-        foreach ($resultDb as $db) {
+        foreach ($resultDb as $db)
+        {
             $object = $this->_getTeam($db);
             $ret[] = $object;
         }
         return $ret;
+    }
+
+    private function _getTodoList($todoId)
+    {
+        $ret = array();
+        $resultDb = $this->database->table('team')->where(':todo_team.todo_id', $todoId);
+        foreach ($resultDb as $db)
+        {
+            $object = $this->_getTeam($db);
+            $ret[] = $object;
+        }
+        return $ret;
+    }
+
+    private function _getTodoItem($todoId, $teamId)
+    {
+        return $this->_getTeam($this->database->table('team')->where(':todo_team.todo_id', $todoId)->where("team_id", $teamId)->fetch());
+    }
+
+    public function _teamTodoDelete($todoId, $teamId)
+    {
+        return $this->database->table('todo_team')->where('todo_id', $todoId)->where('team_id', $teamId)->delete();
+    }
+
+    public function _teamTodoCreate($todoId, $teamId)
+    {
+        return $this->database->table('todo_team')->insert(['todo_id' => $todoId, 'team_id' => $teamId]);
     }
 
     /* EXTERNAL METHOD */
@@ -97,6 +131,26 @@ class TeamManager extends BaseManager
     public function getSearch($search)
     {
         return $this->_getSearch($search);
+    }
+
+    public function getTodoList($todoId)
+    {
+        return $this->_getTodoList($todoId);
+    }
+
+    public function getTodoItem($todoId, $teamId)
+    {
+        return $this->_getTodoItem($todoId, $teamId);
+    }
+
+    public function teamTodoDelete($todoId, $teamId)
+    {
+        return $this->_teamTodoDelete($todoId, $teamId);
+    }
+
+    public function teamTodoCreate($todoId, $teamId)
+    {
+        return $this->_teamTodoCreate($todoId, $teamId);
     }
 
 }
