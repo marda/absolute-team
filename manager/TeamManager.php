@@ -32,6 +32,11 @@ class TeamManager extends BaseManager
         return $object;
     }
 
+    public function getTeam($db)
+    {
+        return $this->_getTeam($db);
+    }
+
     /* INTERNAL/EXTERNAL INTERFACE */
 
     public function _getById($id)
@@ -111,6 +116,35 @@ class TeamManager extends BaseManager
         return $this->database->table('todo_team')->insert(['todo_id' => $todoId, 'team_id' => $teamId]);
     }
 
+    
+
+    private function _getEventList($eventId)
+    {
+        $ret = array();
+        $resultDb = $this->database->table('team')->where(':event_team.event_id', $eventId);
+        foreach ($resultDb as $db)
+        {
+            $object = $this->_getTeam($db);
+            $ret[] = $object;
+        }
+        return $ret;
+    }
+
+    private function _getEventItem($eventId, $teamId)
+    {
+        return $this->_getTeam($this->database->table('team')->where(':event_team.event_id', $eventId)->where("team_id", $teamId)->fetch());
+    }
+
+    public function _teamEventDelete($eventId, $teamId)
+    {
+        return $this->database->table('event_team')->where('event_id', $eventId)->where('team_id', $teamId)->delete();
+    }
+
+    public function _teamEventCreate($eventId, $teamId)
+    {
+        return $this->database->table('event_team')->insert(['event_id' => $eventId, 'team_id' => $teamId]);
+    }
+
     /* EXTERNAL METHOD */
 
     public function getById($id)
@@ -151,6 +185,26 @@ class TeamManager extends BaseManager
     public function teamTodoCreate($todoId, $teamId)
     {
         return $this->_teamTodoCreate($todoId, $teamId);
+    }
+
+    public function getEventList($eventId)
+    {
+        return $this->_getEventList($eventId);
+    }
+
+    public function getEventItem($eventId, $teamId)
+    {
+        return $this->_getEventItem($eventId, $teamId);
+    }
+
+    public function teamEventDelete($eventId, $teamId)
+    {
+        return $this->_teamEventDelete($eventId, $teamId);
+    }
+
+    public function teamEventCreate($eventId, $teamId)
+    {
+        return $this->_teamEventCreate($eventId, $teamId);
     }
 
 }
