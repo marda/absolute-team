@@ -145,6 +145,33 @@ class TeamManager extends BaseManager
         return $this->database->table('event_team')->insert(['event_id' => $eventId, 'team_id' => $teamId]);
     }
 
+    private function _getMenuList($menuId)
+    {
+        $ret = array();
+        $resultDb = $this->database->table('team')->where(':menu_team.menu_id', $menuId);
+        foreach ($resultDb as $db)
+        {
+            $object = $this->_getTeam($db);
+            $ret[] = $object;
+        }
+        return $ret;
+    }
+
+    private function _getMenuItem($menuId, $teamId)
+    {
+        return $this->_getTeam($this->database->table('team')->where(':menu_team.menu_id', $menuId)->where("team_id", $teamId)->fetch());
+    }
+
+    public function _teamMenuDelete($menuId, $teamId)
+    {
+        return $this->database->table('menu_team')->where('menu_id', $menuId)->where('team_id', $teamId)->delete();
+    }
+
+    public function _teamMenuCreate($menuId, $teamId)
+    {
+        return $this->database->table('menu_team')->insert(['menu_id' => $menuId, 'team_id' => $teamId]);
+    }
+
     /* EXTERNAL METHOD */
 
     public function getById($id)
@@ -205,6 +232,26 @@ class TeamManager extends BaseManager
     public function teamEventCreate($eventId, $teamId)
     {
         return $this->_teamEventCreate($eventId, $teamId);
+    }
+
+    public function getMenuList($menuId)
+    {
+        return $this->_getMenuList($menuId);
+    }
+
+    public function getMenuItem($menuId, $teamId)
+    {
+        return $this->_getMenuItem($menuId, $teamId);
+    }
+
+    public function teamMenuDelete($menuId, $teamId)
+    {
+        return $this->_teamMenuDelete($menuId, $teamId);
+    }
+
+    public function teamMenuCreate($menuId, $teamId)
+    {
+        return $this->_teamMenuCreate($menuId, $teamId);
     }
 
 }
