@@ -199,6 +199,53 @@ class TeamManager extends BaseManager
         return $this->database->table('page_team')->insert(['page_id' => $pageId, 'team_id' => $teamId]);
     }
 
+    private function _getProjectList($projectId)
+    {
+        $ret = array();
+        $resultDb = $this->database->table('team')->where(':project_team.project_id', $projectId);
+        foreach ($resultDb as $db)
+        {
+            $object = $this->_getTeam($db);
+            $ret[] = $object;
+        }
+        return $ret;
+    }
+
+    private function _getProjectItem($projectId, $teamId)
+    {
+        return $this->_getTeam($this->database->table('team')->where(':project_team.project_id', $projectId)->where("team_id", $teamId)->fetch());
+    }
+
+    public function _teamProjectDelete($projectId, $teamId)
+    {
+        return $this->database->table('project_team')->where('project_id', $projectId)->where('team_id', $teamId)->delete();
+    }
+
+    public function _teamProjectCreate($projectId, $teamId)
+    {
+        return $this->database->table('project_team')->insert(['project_id' => $projectId, 'team_id' => $teamId]);
+    }
+
+    public function getProjectList($projectId)
+    {
+        return $this->_getProjectList($projectId);
+    }
+
+    public function getProjectItem($projectId, $teamId)
+    {
+        return $this->_getProjectItem($projectId, $teamId);
+    }
+
+    public function teamProjectDelete($projectId, $teamId)
+    {
+        return $this->_teamProjectDelete($projectId, $teamId);
+    }
+
+    public function teamProjectCreate($projectId, $teamId)
+    {
+        return $this->_teamProjectCreate($projectId, $teamId);
+    }
+
     /* EXTERNAL METHOD */
 
     public function getById($id)
