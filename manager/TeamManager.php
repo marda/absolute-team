@@ -172,6 +172,33 @@ class TeamManager extends BaseManager
         return $this->database->table('menu_team')->insert(['menu_id' => $menuId, 'team_id' => $teamId]);
     }
 
+    private function _getPageList($pageId)
+    {
+        $ret = array();
+        $resultDb = $this->database->table('team')->where(':page_team.page_id', $pageId);
+        foreach ($resultDb as $db)
+        {
+            $object = $this->_getTeam($db);
+            $ret[] = $object;
+        }
+        return $ret;
+    }
+
+    private function _getPageItem($pageId, $teamId)
+    {
+        return $this->_getTeam($this->database->table('team')->where(':page_team.page_id', $pageId)->where("team_id", $teamId)->fetch());
+    }
+
+    public function _teamPageDelete($pageId, $teamId)
+    {
+        return $this->database->table('page_team')->where('page_id', $pageId)->where('team_id', $teamId)->delete();
+    }
+
+    public function _teamPageCreate($pageId, $teamId)
+    {
+        return $this->database->table('page_team')->insert(['page_id' => $pageId, 'team_id' => $teamId]);
+    }
+
     /* EXTERNAL METHOD */
 
     public function getById($id)
@@ -252,6 +279,26 @@ class TeamManager extends BaseManager
     public function teamMenuCreate($menuId, $teamId)
     {
         return $this->_teamMenuCreate($menuId, $teamId);
+    }
+
+    public function getPageList($pageId)
+    {
+        return $this->_getPageList($pageId);
+    }
+
+    public function getPageItem($pageId, $teamId)
+    {
+        return $this->_getPageItem($pageId, $teamId);
+    }
+
+    public function teamPageDelete($pageId, $teamId)
+    {
+        return $this->_teamPageDelete($pageId, $teamId);
+    }
+
+    public function teamPageCreate($pageId, $teamId)
+    {
+        return $this->_teamPageCreate($pageId, $teamId);
     }
 
 }
